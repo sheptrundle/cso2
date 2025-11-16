@@ -1,0 +1,12 @@
+Licenses that I considered during research:
+
+1. MIT License
+The MIT license to me appeared very permissable and didn't have extensive restrictions on how people could use/modify it, it just required the original credit to be given. 
+
+2. GNU General Public License
+I found that the GPL license was similar to the MIT license in the sense that it allowed free use and distribution, it also required that the original source code be available if it is changed in any way, and included copyleft protection which meant any derivative works must also be under the GPL.
+
+3. Mozilla Public License
+The MPL also requires that any files containing MPL-covered code must also stay under the MPL if distributed. It also included a file level copyleft which stated that any modified source files must stay under MPL, but other non-source files didn't have to. 
+
+I ended up choosing the MIT license because I had heard of it before and knew it was very commonly used. Also, in the context of the code I currently write, I am no professional so I support lesser restrictions on how people can use and distribute my code, so long as they give credit. I am not too worried about protecting my code at my current level of expertise.

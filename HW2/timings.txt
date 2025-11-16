@@ -1,0 +1,12 @@
+Average time for case 1: 10.443639 ns
+Average time for case 2: 5964.217316 ns
+Average time for case 3: 2133.684279 ns
+Average time for case 4: 62922.286168 ns
+Average time for case 5: 1820.998149 ns
+Average time for case 6: 255372.892280 ns
+Average time for case 7: 2915131.385049 ns
+Average time for case 8: 73061.934162 ns
+
+Overhead measured = 53 ns
+Individual times are found using ./gettimings x (where x is an int 1-8)
+Averages are found from many runs of each case (while loop for <1 sec), done using ./calculate_timings 

@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdint.h>
+
+/*
+This template code works by accessing elements of an array in a particular order in a loop.
+Since this is the only memory location accessed by the loop (assuming i, j are stored in registers)
+and the loop makes for a vast majority of the data memory accesses, these accesses will
+determine the cache miss rate.
+
+By default, the template will provide accesses element
+0, 4, 8, 12, 16, 20, 24, 28, ..., 1048564, 0, 4, 8, 12, ...
+until it has performed 64 million accesses.
+
+(The accesses happen in the second loop below, which will usually account for a majority
+of the data cache accesses. The first loop below sets up the array to make second loop
+work well.)
+
+If you run this with a 32KB, 64B block size 2-way set associative data cache (with an LRU policy),
+this results in about a 75% hit rate:
+
+*  when index 0 is accessed, the whole cache block containing indices 0-15 inclusive (64 bytes)
+   is loaded into the cache (if it wasn't already); this means that indices 4, 8, 12 are hits.
+
+   Similarly, indices 20, 24, and 28 will be hits; and 36, 40, 44; and so on.
+
+*  when index 0 is accessed the second time, it will be a cache miss even though it was loaded into
+   the cache for the first access. This is because in between the first and second access,
+   the cache needs to load index 8192 and index 16384 and index 24576, etc. --- all of which will
+   map to the same set of the cache. Since each set can only store two values, and the block containing
+   index 0 will be less recently used than many other values, it will be evicted.
+
+   Similarly, when index 16 is accessed the second time, it will also be a cache miss.
+
+Combined, these two observations mean that every fourth access will be a miss and all other accesses
+will be hits. (I neglected to analyze what happens for the first access to index 0, index 16, etc. or
+what happens in the loop that initializes the array ---
+since there are so many more accesses to these indices after initialization, we can neglect them for the
+purposes of our analysis. As long as we set the number of total accesses high enough,
+the "warmup" accesses will have a small enough effect that we'll still be able to achieve hit
+rates in the target ranges.)
+
+You can:
+*  adjust the maximum index used by changing MAX;
+*  adjust the interval between indexes by changing SKIP;
+*  adjust the number of accesses by changing ITERS;
+*  modify the intiialization of `global_array` to specify access patterns that can't be specified
+   by setting MAX and SKIP
+
+The supplied code works by setting up each element array to contain the index of the next one
+to access (so, with the initial settings, index 0 will contain 4, 4 will contain 8,
+1048564 will contain 0, etc.), and then accessing the array in a loop to find the next
+array element to access.  This prevents some clever techniques where the compiler or
+processor might skip some array accesses or perform multiple array accesses in parallel.
+*/
+
+/* if GCC is used to compile this, disable optimizations (if not already disabled)
+   that are likely to make the compiler generate a non-intutive access pattern */
+#pragma GCC optimize (2, "no-tree-vectorize")
+
+
+
+int main() {
+    const int MAX = 1048568;
+    const int SKIP = 4;
+    const int ITERS = 64000000;
+
+
+    // not using global array from skeleton for this implementation
+
+    
+#pragma clang loop vectorize(disable)
+#pragma clang loop interleave(disable)
+
+    /* This loop performs the actual array accesses described above.
+     * This is where most of the data cache accesses are likely to occur.
+     */
+
+    static int arr[200000]; 
+    // 16KB step 
+    int step = 4096 * 4;  
+    // 4 blocks
+    int n = 4;              
+    int idxs[4];
+
+    for (int i = 0; i < n; i++) {
+        idxs[i] = (i * step) / sizeof(int);
+    }
+
+    for (int i = 0; i < n; i++) {
+        arr[idxs[i]] = idxs[(i + 1) % n];
+    }   
+
+    // Pointer-chasing loop 
+    int j = 0;
+    for (int i = 0; i < ITERS; i++) {
+        j = arr[j];
+    }
+
+    printf("%d\n", j);
+}
+

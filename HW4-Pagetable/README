@@ -1,0 +1,49 @@
+# Shep Trundle (dvf5rd) – CSO2 Pagetable HW
+
+## Overview
+
+My code implements a multi-level page table lookup and includes a simplified virtual memory system.
+
+The two configuration constants, POBITS and LEVEL, are included in config.h. 
+
+To choose these, consider your desired...
+
+**Page Size: For your page size in bytes, set POBITS to be the log base 2 of that number.** \
+    –Increasing POBITS gives larger pages but wastes memory if you don't plan on using/filling them. \
+    –Decreasing POBITS has less memory wasted but requires more page tables and entries. \
+    –Anything above 16 (64 KB pages) might cause excessive memory usage.
+
+**Levels: Choose this based on how much virtual memory space you want. More levels will support larger virtual memory but use more memory overall.** \
+    –Increasing LEVELS supports larger virtual address spaces but more overall memory for page tables.\
+    –Decreasing levels will make it simpler and faster but places a cap that can limit the maximum virtual memory.\
+    –Anything above 4 levels can cause issues since the virtual address space would exceed what most machines can handle and the code could overflow.
+
+Use "make" to build the project, and 
+"make clean" to remove executable files.
+
+There are no known bugs or limitations. 
+
+
+
+**Proposed Deallocation Method**
+
+The current interface does not support memory deallocation so to implement this I would create a method:
+
+int deallocate_page(size_t *start_va*);
+
+The argument *start_va* is the virtual address of the page we want to free. It must be page aligned but it should be anyways because we use posix_memalign().
+
+The function returns: \
+0 if *start_va* does not correspond to an allocated page \
+1 if the page was deallocated \
+-1 if *start_va* isn't page aligned (again shouldn't occur in our implementation)
+
+The function works like so:
+1) Iterate over the list until it locates the page at *start_va*
+2) Clears the page table entry
+3) Traverses back up the hierarchy and free any page tables that might become empty as a result of clearing *start_va*
+
+
+
+
+
